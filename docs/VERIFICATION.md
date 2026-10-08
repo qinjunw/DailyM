@@ -1,5 +1,23 @@
 # 社区版验证记录
 
+## 0.1.3 离线转写修复（本地验证，尚未发布）
+
+验证日期：2026-10-08。排查开始时，本地与远端主干均为 `7502fa8`（0.1.2），手机安装的是版本代码 3 的主题/动效预览包，版本标签为 `0.1.1-community`。主题更新没有修改转写或模型请求代码。
+
+在手机上重试既有录音，日志报告 `NoSuchFieldError`：原生库找不到 `OfflineRecognizerConfig.decodingMethod`。原 Release 混淆映射将该字段改名为 `d`，并改名了其他配置类和字段。sherpa-onnx JNI 按固定名称读取这些字段和类描述符，因此识别器在加载配置时失败。
+
+修复在 `app/proguard-rules.pro` 保留 `com.k2fsa.sherpa.onnx` 原生接口类及其成员，继续启用 R8 和资源收缩。修复包为 `0.1.3-community`、版本代码 5，基于 0.1.2 的主题和动效构建。
+
+- `:app:assembleRelease :app:lintRelease` 通过，Lint 为 0 错误。
+- 从最终 APK 的 DEX 检查识别器配置、特征配置、模型配置、SenseVoice 配置和结果类；JNI 所需字段按原名声明。模型和词表 SHA-256 与固定值一致。
+- `apksigner verify` 通过，签名证书与已有社区版一致；使用保留数据的覆盖安装，首次安装时间保持不变。
+- Android 16（API 36）真机上，同一段失败录音重试成功，后台转写任务返回 `SUCCESS`，界面显示“转写已完成”。
+- 使用手机原来保存的 DeepSeek 配置生成当天回顾，后台回顾任务返回 `SUCCESS`。未修改服务地址、预设模型名或思考参数。重启应用后，转写与回顾均保留。
+
+截至验证日，[DeepSeek 官方指南](https://api-docs.deepseek.com/en/) 推荐模型名 `deepseek-flash`，同时明确仍接受本项目的 `deepseek-v4-flash` 旧名。[思考模式说明](https://api-docs.deepseek.com/zh-cn/guides/thinking_mode/)仍支持当前的 `thinking.type=enabled` 和 `reasoning_effort=low`。本次转写失败发生在本地原生初始化阶段；真实回顾调用已验证现有请求配置可以使用。
+
+后续 Release 验收需在实际启用混淆的安装包上完成录音转写和回顾检查。JVM 测试、Debug 包运行及 APK 中存在模型文件，均不能单独验证 JNI 的字段保留约束。
+
 ## 0.1.2 三组主题与皮蛋动效
 
 发布构建验证日期：2026-09-13。最终 APK 版本为 `0.1.2-community`，版本代码为 4，包名保持 `com.percontext.community`。下述主题和动效实现一并进入本版本。
