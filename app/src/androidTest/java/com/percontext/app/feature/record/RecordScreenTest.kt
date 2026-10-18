@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
@@ -19,6 +20,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.dp
 import com.percontext.app.domain.model.RecordStatus
 import com.percontext.app.domain.model.TranscriptStatus
 import com.percontext.app.domain.model.VoiceRecord
@@ -34,6 +36,7 @@ class RecordScreenTest {
 
     @Test
     fun emptyScreenKeepsRecordActionProminent() {
+        var settingsOpened = false
         composeRule.setContent {
             PerContextTheme {
                 RecordScreen(
@@ -45,6 +48,7 @@ class RecordScreenTest {
                     onSeekPlayback = { _, _ -> },
                     onRequestTranscription = {},
                     onRequestDelete = {},
+                    onOpenSettings = { settingsOpened = true },
                 )
             }
         }
@@ -53,6 +57,13 @@ class RecordScreenTest {
         composeRule.onNodeWithText("最近记录").assertIsDisplayed()
         composeRule.onNodeWithText("还没有记录").assertIsDisplayed()
         composeRule.onNodeWithText("本地保存").assertDoesNotExist()
+        composeRule.onNodeWithText("PerContext").assertDoesNotExist()
+        composeRule.onNodeWithText("把想法留在当下").assertDoesNotExist()
+        composeRule.onNodeWithText("喵记").assertDoesNotExist()
+        composeRule.onNodeWithText("DailyM").assertDoesNotExist()
+        composeRule.onNodeWithTag("record_header").assertHeightIsEqualTo(48.dp)
+        composeRule.onNodeWithContentDescription("打开设置").assertIsDisplayed().performClick()
+        composeRule.runOnIdle { assertTrue(settingsOpened) }
     }
 
     @Test

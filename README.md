@@ -1,4 +1,4 @@
-# PerContext Community
+# 喵记（DailyM）
 
 一个用于个人随记上下文的小工具，也是一个 AI 时代的日记小工具。
 

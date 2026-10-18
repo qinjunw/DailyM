@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.percontext.app.BuildConfig
+import com.percontext.app.R
 import com.percontext.app.data.provider.SenseVoiceModelContract
 import com.percontext.app.domain.appearance.AppTheme
 import com.percontext.app.domain.appearance.AppearanceSettings
@@ -361,7 +363,7 @@ private fun AboutCard(onOpenLegalNotices: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(22.dp)) {
             Text(
-                text = "关于 PerContext Community",
+                text = stringResource(R.string.about_title, stringResource(R.string.app_name)),
                 color = InkColor,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
