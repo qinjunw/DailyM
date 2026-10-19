@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DailyM</string>
+    <string name="about_title">About %1$s</string>
+    <string name="recording_notification_title">DailyM is recording</string>
+    <string name="recording_channel_name">Recording</string>
+    <string name="recording_channel_description">Shows recording progress while the microphone is active</string>
+    <string name="stop_recording">Stop recording</string>
+    <string name="transcription_notification_title">DailyM is transcribing</string>
+    <string name="transcription_notification_content">Processing the recording on this device</string>
+    <string name="transcription_channel_name">Transcription</string>
+    <string name="transcription_channel_description">Shows progress while transcribing long recordings</string>
+    <string name="cancel_transcription">Cancel transcription</string>
+</resources>

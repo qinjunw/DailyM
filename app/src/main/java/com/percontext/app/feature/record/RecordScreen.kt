@@ -36,14 +36,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.percontext.app.domain.model.RecordStatus
 import com.percontext.app.domain.model.VoiceRecord
-import com.percontext.app.ui.component.AppHeaderGrid
 import com.percontext.app.ui.component.HeaderSettingsButton
 import com.percontext.app.ui.component.PidanPerch
 import com.percontext.app.domain.recording.RecordingSession
 import com.percontext.app.ui.theme.CanvasColor
 import com.percontext.app.ui.theme.InkColor
 import com.percontext.app.ui.theme.LocalColor
-import com.percontext.app.ui.theme.MutedColor
 import com.percontext.app.ui.theme.PerContextTheme
 
 @Composable
@@ -193,26 +191,12 @@ fun RecordScreen(
 
 @Composable
 private fun Header(onOpenSettings: () -> Unit) {
-    AppHeaderGrid(
-        titleContent = {
-            Text(
-                text = "PerContext",
-                color = InkColor,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-0.7).sp,
-            )
-            Text(
-                text = "把想法留在当下",
-                color = MutedColor,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-            )
-        },
-        actionContent = {
-            HeaderSettingsButton(onClick = onOpenSettings)
-        },
-    )
+    Row(
+        modifier = Modifier.fillMaxWidth().testTag("record_header"),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        HeaderSettingsButton(onClick = onOpenSettings)
+    }
 }
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
