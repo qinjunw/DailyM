@@ -8,11 +8,11 @@
 
 ## 界面预览
 
-| 记录首页 | 模型服务与关于 |
+| 记录首页 | 回顾日历 |
 | --- | --- |
-| <img src="docs/screenshots/record-home-zh-CN.png" width="260" alt="喵记记录首页：录音按钮、皮蛋和空的最近记录列表"> | <img src="docs/screenshots/settings-about-zh-CN.png" width="260" alt="喵记设置页下半部：模型服务配置、空的 Key 输入框和关于信息"> |
+| <img src="docs/screenshots/record-home-zh-CN.png" width="260" alt="喵记记录首页：录音主面板、皮蛋和合成录音列表"> | <img src="docs/screenshots/review-calendar-zh-CN.png" width="260" alt="喵记回顾页：与首页对齐的设置按钮、月历主面板和皮蛋，下面是所选日期与合成回顾"> |
 
-截图来自 2026-10-18 的 Android 16 模拟器独立测试安装，展示已进入主干的 `0.1.3` 界面；使用空白测试数据，不含私人记录或 API Key。它们不是已发布的 `0.1.2` APK 截图，来源见 [截图说明](docs/screenshots/README.md)。
+预览来自 2026-10-22 的 Android 16 模拟器独立测试安装，对应 `4772c7e` 的布局实现（[PR #3](https://github.com/qinjunw/DailyM/pull/3)）。两图均为 392 × 800 dp 的测试视口截图，使用合成录音与回顾，不含私人记录或 API Key；不代表已发布的 `0.1.2` APK。设置页截图及各图来源见 [截图说明](docs/screenshots/README.md)。
 
 ## 当前功能
 
@@ -30,7 +30,7 @@
 
 | 版本 | 获取方式 | 差异与状态 |
 | --- | --- | --- |
-| 主干 `0.1.3-community` / code 5 | [从源码构建](#从源码构建) | 包含“喵记 / DailyM”命名、紧凑首页和 Release 离线转写修复；尚未发布对应 APK |
+| 本目录源码 `0.1.3-community` / code 5 | [从源码构建](#从源码构建) | 包含“喵记 / DailyM”命名、记录与回顾页布局对齐及 Release 离线转写修复；尚未发布对应 APK |
 | 已发布 `0.1.2-community` / code 4 | [Release](https://github.com/qinjunw/DailyM/releases/tag/v0.1.2-community) · [ARM64 APK](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/PerContext-Community-0.1.2-arm64.apk) · [SHA256SUMS.txt](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/SHA256SUMS.txt) | 预发布，仍为旧品牌和旧首页；不含主干的 JNI 修复 |
 
 **已知问题：** 已发布 `0.1.2` 的 Release 混淆可能使 SenseVoice 在初始化时出现 `NoSuchFieldError`，导致离线转写失败。主干 `0.1.3` 已加入原生接口保留规则；需要此修复时请从源码构建。两者均内置离线模型，详细故障与验证范围见 [验证记录](docs/VERIFICATION.md)。
@@ -41,7 +41,7 @@
 
 ## 使用
 
-**录音和离线转写无需 API Key；Key 仅用于生成每日回顾。** 以下步骤按主干 `0.1.3` 的行为说明。
+**录音和离线转写无需 API Key；Key 仅用于生成每日回顾。** 以下步骤按本目录 `0.1.3` 源码的行为说明。
 
 1. 打开 App，点击「记录」并授予麦克风权限；Android 6–9 还需授予存储权限。Android 13 及以上会申请通知权限，用于显示录音状态；拒绝通知权限仍可录音。停止后，录音出现在时间线。
 2. 点击录音的转写按钮。首次转写会把 APK 内的模型校验并安装到应用私有目录，随后离线识别。
@@ -50,6 +50,8 @@
 5. 保存后打开「回顾」，选择有成功转写的日期，点击生成当天回顾。月历标记“有录音”不代表当天已完成转写。
 
 原始转写是首次成功识别的快照，当前不能编辑或重新转写成功结果。每天只保存一份当前回顾，刷新成功会替换它；来源改变时会提示确认已备份，但 App 目前尚无完整导出与恢复功能。
+
+记录页与回顾页的设置按钮、主面板和皮蛋平台保持相同位置；“回顾”标签与所选日期位于皮蛋下方。小屏或大字体下，可在主面板内滚动访问录音控件及完整月历，下方记录列表与日期详情单独滚动；切页或从设置返回时保留各页滚动位置。
 
 在「设置 → 外观」选择主题与显示模式，选择后自动生效，无需点击模型服务的「保存设置」。默认使用晴空奶白并跟随系统；外观设置与模型服务配置分开保存。
 
@@ -80,6 +82,12 @@
 ```sh
 git clone https://github.com/qinjunw/DailyM.git
 cd DailyM
+```
+
+复现本页布局预览时，在获取模型与构建前检出固定的界面实现提交（合入状态见 [PR #3](https://github.com/qinjunw/DailyM/pull/3)）：
+
+```sh
+git checkout 4772c7e9d81c70395c91cc6144b308af244a3b64
 ```
 
 先获取固定模型包：
