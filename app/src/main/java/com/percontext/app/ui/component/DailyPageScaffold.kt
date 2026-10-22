@@ -34,6 +34,12 @@ import com.percontext.app.ui.theme.AcrylicEdgeColor
 import com.percontext.app.ui.theme.CanvasColor
 import com.percontext.app.ui.theme.PerContextTheme
 
+internal object CalendarDayLayout {
+    val padding = 2.dp
+    val markerGap = 2.dp
+    val markerSize = 5.dp
+}
+
 internal data class DailyPanelMetrics(
     val monthHeaderHeight: Dp,
     val weekdayHeight: Dp,
@@ -53,16 +59,33 @@ internal data class DailyPanelMetrics(
 private fun dailyPanelMetrics(width: Dp): DailyPanelMetrics {
     val density = LocalDensity.current
     val typography = MaterialTheme.typography
-    val title = rememberTextMeasurer().measure(
+    val textMeasurer = rememberTextMeasurer()
+    val title = textMeasurer.measure(
         text = "8888 年 12 月",
         style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
         constraints = Constraints(maxWidth = with(density) { (width - 124.dp).roundToPx().coerceAtLeast(1) }),
     )
     return with(density) {
+        val cellPaddingPx = CalendarDayLayout.padding.roundToPx()
+        val labelWidthPx = ((width.roundToPx() - 2 * 14.dp.roundToPx()) / 7 - 2 * cellPaddingPx)
+            .coerceAtLeast(1)
+        // Nonlinear font scaling resolves Text line height differently from sp.toDp().
+        val dayLabelHeightPx = listOf(FontWeight.Normal, FontWeight.SemiBold).maxOf { weight ->
+            textMeasurer.measure(
+                text = "88",
+                style = typography.bodyMedium.copy(fontWeight = weight),
+                constraints = Constraints(maxWidth = labelWidthPx),
+            ).size.height
+        }
+        val dayHeightPx = maxOf(
+            40.dp.roundToPx(),
+            dayLabelHeightPx + 2 * cellPaddingPx + CalendarDayLayout.markerGap.roundToPx() +
+                CalendarDayLayout.markerSize.roundToPx(),
+        )
         DailyPanelMetrics(
             monthHeaderHeight = maxOf(48.dp, title.size.height.toDp() + 8.dp, 32.sp.toDp()),
             weekdayHeight = typography.labelSmall.lineHeight.toDp(),
-            dayHeight = maxOf(40.dp, typography.bodyMedium.lineHeight.toDp() + 11.dp),
+            dayHeight = dayHeightPx.toDp(),
             legendHeight = typography.labelSmall.lineHeight.toDp(),
             recordContentHeight = 60.sp.toDp() + typography.bodyLarge.lineHeight.toDp() + 264.dp,
         )

@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.percontext.app.domain.dailycontext.DailyContext
 import com.percontext.app.domain.dailycontext.DailyContextStatus
+import com.percontext.app.ui.component.CalendarDayLayout
 import com.percontext.app.ui.component.DailyPageScaffold
 import com.percontext.app.ui.component.DailyPanelMetrics
 import com.percontext.app.ui.theme.HairlineColor
@@ -253,7 +254,7 @@ private fun CalendarDay(
     val dayNumber = day.cell.day
     Box(
         modifier = modifier
-            .padding(2.dp)
+            .padding(CalendarDayLayout.padding)
             .clip(RoundedCornerShape(13.dp))
             .then(
                 if (selected) Modifier.background(PerContextTheme.colors.heroInk)
@@ -274,14 +275,16 @@ private fun CalendarDay(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = dayNumber.toString(),
+                    modifier = Modifier.testTag("review_day_text_${day.cell.dayKey}"),
                     color = if (selected) PerContextTheme.colors.hero else PerContextTheme.colors.heroInk,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (selected || today) FontWeight.SemiBold else FontWeight.Normal,
                 )
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(CalendarDayLayout.markerGap))
                 Box(
                     modifier = Modifier
-                        .size(5.dp)
+                        .size(CalendarDayLayout.markerSize)
+                        .testTag("review_day_marker_${day.cell.dayKey}")
                         .then(
                             if (selected && (day.context?.content != null || day.recordingCount > 0)) {
                                 Modifier.border(1.dp, PerContextTheme.colors.hero, CircleShape)
