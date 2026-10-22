@@ -59,7 +59,7 @@ internal fun DailyContextPreview(
     val content = requireNotNull(context.content)
     val refreshing = context.status == DailyContextStatus.QUEUED ||
         context.status == DailyContextStatus.PROCESSING
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         when {
             refreshing -> {
                 Row(
@@ -84,7 +84,6 @@ internal fun DailyContextPreview(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .clip(RoundedCornerShape(12.dp))
                 .clickable(onClick = onOpen)
                 .testTag("review_context_preview"),

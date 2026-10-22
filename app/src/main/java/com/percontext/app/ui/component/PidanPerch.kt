@@ -105,6 +105,7 @@ fun PidanPerch(
                 .padding(end = 12.dp)
                 .width(132.dp)
                 .height(6.dp)
+                .testTag("pidan_platform")
                 .background(colors.shelf, RoundedCornerShape(3.dp)),
         ) {
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))

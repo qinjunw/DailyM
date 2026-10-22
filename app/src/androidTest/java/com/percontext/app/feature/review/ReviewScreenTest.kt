@@ -138,9 +138,31 @@ class ReviewScreenTest {
                     (min(textColor.luminance(), background.luminance()) + 0.05f)
                 assertTrue("$appTheme dark=$darkTheme selected date contrast=$contrast", contrast >= 4.5f)
 
+                val panelPixels = composeRule.onNodeWithTag("daily_main_panel").captureToImage().toPixelMap()
+                val panelColors = mutableMapOf<Int, Int>()
+                for (y in 0 until panelPixels.height step 8) {
+                    for (x in 0 until panelPixels.width step 8) {
+                        val color = panelPixels[x, y].toArgb()
+                        panelColors[color] = panelColors.getOrDefault(color, 0) + 1
+                    }
+                }
+                val panelBackground = Color(panelColors.maxBy { it.value }.key)
+                listOf("28", "已有回顾", "有录音", "‹", "›").forEach { label ->
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    composeRule.onNode(
+                        hasText(label) and hasAnyAncestor(hasTestTag("review_calendar")),
+                        useUnmergedTree = true,
+                    )
+                        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    val foreground = layouts.single().layoutInput.style.color
+                    val ratio = (max(foreground.luminance(), panelBackground.luminance()) + 0.05f) /
+                        (min(foreground.luminance(), panelBackground.luminance()) + 0.05f)
+                    assertTrue("$appTheme dark=$darkTheme $label contrast=$ratio", ratio >= 4.5f)
+                }
+
                 composeRule.onNodeWithTag("review_day_2026-08-28").performClick()
                 composeRule.runOnIdle { assertEquals("2026-08-28", selectedDay) }
-                composeRule.onNodeWithTag("pidan_perch").performScrollTo().assertIsDisplayed()
+                composeRule.onNodeWithTag("pidan_perch").assertIsDisplayed()
                 composeRule.onNodeWithTag("selected_day_recordings").performScrollTo().performClick()
                 composeRule.onNodeWithTag("day_recordings_dialog").assertIsDisplayed()
                 composeRule.onNodeWithContentDescription("关闭当天录音").performClick()
