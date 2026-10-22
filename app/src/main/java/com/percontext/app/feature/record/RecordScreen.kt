@@ -1,22 +1,14 @@
 package com.percontext.app.feature.record
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,10 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.percontext.app.domain.model.RecordStatus
 import com.percontext.app.domain.model.VoiceRecord
-import com.percontext.app.ui.component.HeaderSettingsButton
-import com.percontext.app.ui.component.PidanPerch
+import com.percontext.app.ui.component.DailyPageScaffold
 import com.percontext.app.domain.recording.RecordingSession
-import com.percontext.app.ui.theme.CanvasColor
 import com.percontext.app.ui.theme.InkColor
 import com.percontext.app.ui.theme.LocalColor
 import com.percontext.app.ui.theme.PerContextTheme
@@ -110,60 +100,50 @@ fun RecordScreen(
         previousRecordCount = state.records.size
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = CanvasColor,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(start = 20.dp, end = 20.dp, top = 8.dp),
-        ) {
-            Header(onOpenSettings)
-            Spacer(Modifier.height(10.dp))
-            Box(modifier = Modifier.testTag("recording_controls")) {
-                RecordingHero(
-                    session = state.recordingSession,
-                    inputLevel = state.recordingInputLevel,
-                    onStartRecording = onStartRecording,
-                    onStopRecording = onStopRecording,
-                )
-            }
-            PidanPerch(animate = state.recordingSession !is RecordingSession.Recording)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "最近记录",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = InkColor,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text = "${state.records.size} 条",
-                    color = LocalColor,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            Spacer(Modifier.height(10.dp))
+    DailyPageScaffold(
+        snackbarHostState = snackbarHostState,
+        onOpenSettings = onOpenSettings,
+        animatePerch = state.recordingSession !is RecordingSession.Recording,
+        panel = { metrics ->
+            RecordingHero(
+                session = state.recordingSession,
+                inputLevel = state.recordingInputLevel,
+                onStartRecording = onStartRecording,
+                onStopRecording = onStopRecording,
+                modifier = Modifier.fillMaxWidth().heightIn(min = metrics.contentHeight)
+                    .testTag("recording_controls"),
+            )
+        },
+        details = { modifier ->
             LazyColumn(
                 state = recordsListState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .testTag("recent_records_list"),
-                contentPadding = PaddingValues(bottom = 18.dp),
+                modifier = modifier.testTag("recent_records_list"),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                item(key = "recent_header") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "最近记录",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = InkColor,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "${state.records.size} 条",
+                            color = LocalColor,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
                 if (state.records.isEmpty()) {
-                    item { EmptyTimeline() }
+                    item(key = "empty_timeline") { EmptyTimeline() }
                 } else {
                     items(state.records, key = VoiceRecord::id) { record ->
                         RecordingCard(
@@ -178,24 +158,14 @@ fun RecordScreen(
                     }
                 }
             }
-        }
-    }
+        },
+    )
 
     openedTranscript?.let { record ->
         TranscriptDialog(
             record = record,
             onDismiss = { openedTranscript = null },
         )
-    }
-}
-
-@Composable
-private fun Header(onOpenSettings: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().testTag("record_header"),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        HeaderSettingsButton(onClick = onOpenSettings)
     }
 }
 

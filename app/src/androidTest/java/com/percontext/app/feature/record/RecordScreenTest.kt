@@ -61,7 +61,7 @@ class RecordScreenTest {
         composeRule.onNodeWithText("把想法留在当下").assertDoesNotExist()
         composeRule.onNodeWithText("喵记").assertDoesNotExist()
         composeRule.onNodeWithText("DailyM").assertDoesNotExist()
-        composeRule.onNodeWithTag("record_header").assertHeightIsEqualTo(48.dp)
+        composeRule.onNodeWithTag("daily_header").assertHeightIsEqualTo(48.dp)
         composeRule.onNodeWithContentDescription("打开设置").assertIsDisplayed().performClick()
         composeRule.runOnIdle { assertTrue(settingsOpened) }
     }

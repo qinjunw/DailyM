@@ -5,26 +5,18 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,20 +28,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.percontext.app.R
 import com.percontext.app.core.util.formatDuration
 import com.percontext.app.domain.recording.RecordingSession
-import com.percontext.app.ui.theme.AcrylicBackColor
-import com.percontext.app.ui.theme.AcrylicEdgeColor
 import com.percontext.app.ui.theme.InkColor
 import com.percontext.app.ui.theme.SurfaceColor
 import com.percontext.app.ui.theme.PerContextTheme
@@ -61,6 +52,7 @@ internal fun RecordingHero(
     inputLevel: Float,
     onStartRecording: () -> Unit,
     onStopRecording: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val colors = PerContextTheme.colors
     var nowMillis by remember(session) { mutableLongStateOf(System.currentTimeMillis()) }
@@ -72,160 +64,107 @@ internal fun RecordingHero(
             }
         }
     }
-
     val elapsedMillis = if (session is RecordingSession.Recording) {
         nowMillis - session.startedAtMillis
-    } else {
-        0L
-    }
+    } else 0L
     val buttonEnabled = session is RecordingSession.Idle ||
-        session is RecordingSession.Failed ||
-        session is RecordingSession.Recording
+        session is RecordingSession.Failed || session is RecordingSession.Recording
     val isRecording = session is RecordingSession.Recording
 
-    val panelShape = RoundedCornerShape(30.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(304.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset(x = 6.dp, y = 8.dp)
-                .clip(panelShape)
-                .background(AcrylicBackColor)
-                .border(1.dp, AcrylicEdgeColor, panelShape),
-        )
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(294.dp)
-                .shadow(
-                    elevation = 18.dp,
-                    shape = panelShape,
-                    ambientColor = AcrylicBackColor,
-                    spotColor = AcrylicBackColor,
-                ),
-            shape = panelShape,
-            colors = CardDefaults.cardColors(containerColor = colors.hero),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            border = BorderStroke(1.dp, AcrylicEdgeColor),
+    Box(modifier = modifier) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            drawPath(
+                path = Path().apply {
+                    moveTo(0f, size.height * 0.86f)
+                    cubicTo(
+                        size.width * 0.32f, size.height * 0.82f,
+                        size.width * 0.64f, size.height * 0.60f,
+                        size.width, size.height * 0.60f,
+                    )
+                    lineTo(size.width, size.height)
+                    lineTo(0f, size.height)
+                    close()
+                },
+                color = colors.heroWave,
+            )
+            drawPath(
+                path = Path().apply {
+                    moveTo(0f, size.height * 0.82f)
+                    cubicTo(
+                        size.width * 0.34f, size.height * 0.80f,
+                        size.width * 0.72f, size.height * 0.98f,
+                        size.width, size.height,
+                    )
+                    lineTo(0f, size.height)
+                    close()
+                },
+                color = colors.heroWaveAlt,
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawPath(
-                        path = Path().apply {
-                            moveTo(0f, size.height * 0.86f)
-                            cubicTo(
-                                size.width * 0.32f, size.height * 0.82f,
-                                size.width * 0.64f, size.height * 0.60f,
-                                size.width, size.height * 0.60f,
-                            )
-                            lineTo(size.width, size.height)
-                            lineTo(0f, size.height)
-                            close()
-                        },
-                        color = colors.heroWave,
-                    )
-                    drawPath(
-                        path = Path().apply {
-                            moveTo(0f, size.height * 0.82f)
-                            cubicTo(
-                                size.width * 0.34f, size.height * 0.80f,
-                                size.width * 0.72f, size.height * 0.98f,
-                                size.width, size.height,
-                            )
-                            lineTo(0f, size.height)
-                            close()
-                        },
-                        color = colors.heroWaveAlt,
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 22.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            Text(
+                text = formatDuration(elapsedMillis),
+                modifier = Modifier.fillMaxWidth().testTag("recording_timer"),
+                color = colors.heroInk,
+                fontSize = 50.sp,
+                lineHeight = 60.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 1.sp,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = session.statusLabel(),
+                modifier = Modifier.fillMaxWidth().testTag("recording_status"),
+                color = if (session is RecordingSession.Failed && colors.hero == colors.surface) {
+                    MaterialTheme.colorScheme.error
+                } else if (session is RecordingSession.Failed) colors.heroInk else colors.heroMuted,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(Modifier.height(8.dp))
+            Box(
+                modifier = Modifier.size(220.dp).clipToBounds().testTag("recording_action_area"),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isRecording) RecordingRipple(inputLevel)
+                Button(
+                    onClick = if (isRecording) onStopRecording else onStartRecording,
+                    modifier = Modifier.size(124.dp).testTag("recording_action_button").shadow(
+                        elevation = 18.dp,
+                        shape = CircleShape,
+                        ambientColor = if (isRecording) InkColor.copy(alpha = 0.24f)
+                            else colors.heroAction.copy(alpha = 0.24f),
+                        spotColor = if (isRecording) InkColor.copy(alpha = 0.24f)
+                            else colors.heroAction.copy(alpha = 0.24f),
+                    ),
+                    enabled = buttonEnabled,
+                    shape = CircleShape,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isRecording) InkColor else colors.heroAction,
+                        contentColor = if (isRecording) SurfaceColor else colors.onHeroAction,
+                        disabledContainerColor = colors.disabledSurface,
+                        disabledContentColor = colors.muted,
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
                 ) {
-                    Text(
-                        text = formatDuration(elapsedMillis),
-                        color = colors.heroInk,
-                        fontSize = 50.sp,
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 1.sp,
-                    )
-                    Spacer(Modifier.height(5.dp))
-                    Text(
-                        text = session.statusLabel(),
-                        color = if (session is RecordingSession.Failed) {
-                            if (colors.hero == colors.surface) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                colors.heroInk
-                            }
-                        } else {
-                            colors.heroMuted
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier.size(124.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (isRecording) {
-                            RecordingRipple(inputLevel)
-                        }
-                        Button(
-                            onClick = if (isRecording) onStopRecording else onStartRecording,
-                            modifier = Modifier
-                                .size(124.dp)
-                                .shadow(
-                                    elevation = 18.dp,
-                                    shape = CircleShape,
-                                    ambientColor = if (isRecording) {
-                                        InkColor.copy(alpha = 0.24f)
-                                    } else {
-                                        colors.heroAction.copy(alpha = 0.24f)
-                                    },
-                                    spotColor = if (isRecording) {
-                                        InkColor.copy(alpha = 0.24f)
-                                    } else {
-                                        colors.heroAction.copy(alpha = 0.24f)
-                                    },
-                                ),
-                            enabled = buttonEnabled,
-                            shape = CircleShape,
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isRecording) InkColor else colors.heroAction,
-                                contentColor = if (isRecording) SurfaceColor else colors.onHeroAction,
-                                disabledContainerColor = colors.disabledSurface,
-                                disabledContentColor = colors.muted,
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(
-                                defaultElevation = 0.dp,
-                                pressedElevation = 0.dp,
-                            ),
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    painter = painterResource(
-                                        if (isRecording) R.drawable.ic_stop else R.drawable.ic_mic,
-                                    ),
-                                    contentDescription = if (isRecording) "停止录音" else "开始录音",
-                                    modifier = Modifier.size(34.dp),
-                                )
-                                Spacer(Modifier.height(5.dp))
-                                Text(
-                                    text = if (isRecording) "停止" else "记录",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 17.sp,
-                                )
-                            }
-                        }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            painter = painterResource(if (isRecording) R.drawable.ic_stop else R.drawable.ic_mic),
+                            contentDescription = if (isRecording) "停止录音" else "开始录音",
+                            modifier = Modifier.size(34.dp),
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Text(
+                            text = if (isRecording) "停止" else "记录",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                        )
                     }
                 }
             }
@@ -253,7 +192,7 @@ private fun RecordingRipple(inputLevel: Float) {
 
     Canvas(
         modifier = Modifier
-            .requiredSize(220.dp)
+            .fillMaxSize()
             .testTag("recording_ripple"),
     ) {
         val buttonRadius = 62.dp.toPx()

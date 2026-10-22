@@ -35,7 +35,7 @@ class BrandingIntegrationTest {
         listOf("PerContext", "把想法留在当下", "喵记", "DailyM").forEach {
             composeRule.onNodeWithText(it).assertDoesNotExist()
         }
-        composeRule.onNodeWithTag("record_header").assertHeightIsEqualTo(48.dp)
+        composeRule.onNodeWithTag("daily_header").assertHeightIsEqualTo(48.dp)
         val settings = composeRule.onNodeWithContentDescription("打开设置").assertIsDisplayed()
         val settingsBounds = settings.fetchSemanticsNode().boundsInRoot
         val controlsBounds = composeRule.onNodeWithTag("recording_controls")

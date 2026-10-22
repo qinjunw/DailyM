@@ -1,35 +1,28 @@
 package com.percontext.app.feature.review
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,25 +37,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.percontext.app.domain.dailycontext.DailyContext
 import com.percontext.app.domain.dailycontext.DailyContextStatus
-import com.percontext.app.ui.component.AppHeaderGrid
-import com.percontext.app.ui.component.HeaderSettingsButton
-import com.percontext.app.ui.component.PidanPerch
-import com.percontext.app.ui.theme.CanvasColor
+import com.percontext.app.ui.component.DailyPageScaffold
+import com.percontext.app.ui.component.DailyPanelMetrics
 import com.percontext.app.ui.theme.HairlineColor
 import com.percontext.app.ui.theme.InkColor
 import com.percontext.app.ui.theme.LocalColor
 import com.percontext.app.ui.theme.MutedColor
 import com.percontext.app.ui.theme.RecordColor
-import com.percontext.app.ui.theme.SurfaceColor
+import com.percontext.app.ui.theme.PerContextTheme
 
 @Composable
 fun ReviewRoute(
@@ -112,49 +105,39 @@ fun ReviewScreen(
     var recordingsOpen by remember(state.selectedDayKey) { mutableStateOf(false) }
     var contextOpen by remember(state.selectedDayKey) { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = CanvasColor,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { contentPadding ->
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(start = 20.dp, top = 8.dp, end = 20.dp, bottom = 10.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .heightIn(min = maxHeight)
-                    .height(IntrinsicSize.Min)
-                    .testTag("review_page"),
+    val detailsListState = rememberLazyListState()
+    DailyPageScaffold(
+        snackbarHostState = snackbarHostState,
+        onOpenSettings = onOpenSettings,
+        panel = { metrics ->
+            CalendarPanel(
+                state = state,
+                metrics = metrics,
+                onPreviousMonth = onPreviousMonth,
+                onNextMonth = onNextMonth,
+                onSelectDay = onSelectDay,
+            )
+        },
+        details = { modifier ->
+            LazyColumn(
+                modifier = modifier.testTag("review_details_list"),
+                state = detailsListState,
+                contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
             ) {
-                ReviewHeader(onOpenSettings)
-                Spacer(Modifier.height(10.dp))
-                CalendarCard(
-                    state = state,
-                    onPreviousMonth = onPreviousMonth,
-                    onNextMonth = onNextMonth,
-                    onSelectDay = onSelectDay,
-                )
-                Spacer(Modifier.height(16.dp))
-                PidanPerch()
-                SelectedDayCard(
-                    dayKey = state.selectedDayKey,
-                    recordings = state.selectedRecordings,
-                    transcriptCount = state.selectedTranscriptCount,
-                    context = state.selectedContext,
-                    onOpenRecordings = { recordingsOpen = true },
-                    onOpenContext = { contextOpen = true },
-                    onRequestDailyContext = onRequestDailyContext,
-                    modifier = Modifier.weight(1f).heightIn(min = 230.dp),
-                )
+                item(key = "selected_day_details") {
+                    SelectedDaySection(
+                        dayKey = state.selectedDayKey,
+                        recordings = state.selectedRecordings,
+                        transcriptCount = state.selectedTranscriptCount,
+                        context = state.selectedContext,
+                        onOpenRecordings = { recordingsOpen = true },
+                        onOpenContext = { contextOpen = true },
+                        onRequestDailyContext = onRequestDailyContext,
+                    )
+                }
             }
-        }
-    }
+        },
+    )
 
     if (recordingsOpen) {
         DayRecordingListDialog(
@@ -182,88 +165,79 @@ fun ReviewScreen(
 }
 
 @Composable
-private fun ReviewHeader(onOpenSettings: () -> Unit) {
-    AppHeaderGrid(
-        titleContent = {
-            Text(
-                text = "回顾",
-                color = InkColor,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        },
-        actionContent = {
-            HeaderSettingsButton(onClick = onOpenSettings)
-        },
-    )
-}
-
-@Composable
-private fun CalendarCard(
+private fun CalendarPanel(
     state: ReviewUiState,
+    metrics: DailyPanelMetrics,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onSelectDay: (String) -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, HairlineColor),
+    Column(
+        modifier = Modifier.fillMaxWidth().heightIn(min = metrics.contentHeight)
+            .padding(horizontal = 14.dp, vertical = 10.dp).testTag("review_calendar"),
     ) {
-        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+        Row(
+            modifier = Modifier.fillMaxWidth().height(metrics.monthHeaderHeight),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TextButton(
+                onClick = onPreviousMonth,
+                modifier = Modifier.width(48.dp).height(metrics.monthHeaderHeight)
+                    .testTag("previous_month").semantics { contentDescription = "上个月" },
+                contentPadding = PaddingValues(0.dp),
             ) {
-                TextButton(onClick = onPreviousMonth) {
-                    Text("‹", fontSize = 28.sp, color = MutedColor)
-                }
-                Text(
-                    text = state.month.title,
-                    color = InkColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                TextButton(onClick = onNextMonth) {
-                    Text("›", fontSize = 28.sp, color = MutedColor)
-                }
+                Text("‹", fontSize = 28.sp, lineHeight = 32.sp, color = PerContextTheme.colors.heroMuted)
             }
+            Text(
+                text = state.month.title,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                color = PerContextTheme.colors.heroInk,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            TextButton(
+                onClick = onNextMonth,
+                modifier = Modifier.width(48.dp).height(metrics.monthHeaderHeight)
+                    .testTag("next_month").semantics { contentDescription = "下个月" },
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text("›", fontSize = 28.sp, lineHeight = 32.sp, color = PerContextTheme.colors.heroMuted)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth().height(metrics.weekdayHeight)) {
+            listOf("一", "二", "三", "四", "五", "六", "日").forEach { weekday ->
+                Text(
+                    text = weekday,
+                    modifier = Modifier.weight(1f),
+                    color = PerContextTheme.colors.heroMuted,
+                    style = MaterialTheme.typography.labelSmall,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        state.days.chunked(7).forEach { week ->
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("一", "二", "三", "四", "五", "六", "日").forEach { weekday ->
-                    Text(
-                        text = weekday,
-                        modifier = Modifier.weight(1f),
-                        color = MutedColor,
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                week.forEach { day ->
+                    CalendarDay(
+                        day = day,
+                        selected = day.cell.dayKey == state.selectedDayKey,
+                        today = day.cell.dayKey == state.todayDayKey,
+                        onSelect = { day.cell.dayKey?.let(onSelectDay) },
+                        modifier = Modifier.weight(1f).height(metrics.dayHeight),
                     )
                 }
             }
-            Spacer(Modifier.height(4.dp))
-            state.days.chunked(7).forEach { week ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    week.forEach { day ->
-                        CalendarDay(
-                            day = day,
-                            selected = day.cell.dayKey == state.selectedDayKey,
-                            today = day.cell.dayKey == state.todayDayKey,
-                            onSelect = { day.cell.dayKey?.let(onSelectDay) },
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(5.dp))
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                CalendarLegend(LocalColor, "已有回顾")
-                CalendarLegend(RecordColor, "有录音")
-            }
+        }
+        Spacer(Modifier.height(5.dp))
+        Row(
+            modifier = Modifier.height(metrics.legendHeight).padding(horizontal = 8.dp).testTag("calendar_legend"),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            CalendarLegend(LocalColor, "已有回顾")
+            CalendarLegend(RecordColor, "有录音")
         }
     }
 }
@@ -279,11 +253,10 @@ private fun CalendarDay(
     val dayNumber = day.cell.day
     Box(
         modifier = modifier
-            .heightIn(min = 38.dp)
             .padding(2.dp)
             .clip(RoundedCornerShape(13.dp))
             .then(
-                if (selected) Modifier.background(InkColor)
+                if (selected) Modifier.background(PerContextTheme.colors.heroInk)
                 else if (today) Modifier.border(1.dp, HairlineColor, RoundedCornerShape(13.dp))
                 else Modifier,
             )
@@ -301,7 +274,7 @@ private fun CalendarDay(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = dayNumber.toString(),
-                    color = if (selected) SurfaceColor else InkColor,
+                    color = if (selected) PerContextTheme.colors.hero else PerContextTheme.colors.heroInk,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (selected || today) FontWeight.SemiBold else FontWeight.Normal,
                 )
@@ -311,7 +284,7 @@ private fun CalendarDay(
                         .size(5.dp)
                         .then(
                             if (selected && (day.context?.content != null || day.recordingCount > 0)) {
-                                Modifier.border(1.dp, SurfaceColor, CircleShape)
+                                Modifier.border(1.dp, PerContextTheme.colors.hero, CircleShape)
                             } else {
                                 Modifier
                             },
@@ -337,12 +310,12 @@ private fun CalendarLegend(color: Color, label: String) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(6.dp).background(color, CircleShape))
-        Text(label, color = MutedColor, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = PerContextTheme.colors.heroMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
 @Composable
-private fun SelectedDayCard(
+private fun SelectedDaySection(
     dayKey: String,
     recordings: List<ReviewRecordingSummary>,
     transcriptCount: Int,
@@ -352,67 +325,66 @@ private fun SelectedDayCard(
     onRequestDailyContext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, HairlineColor),
-    ) {
-        Column(modifier = Modifier.padding(18.dp)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(onClick = onOpenRecordings)
-                    .testTag("selected_day_recordings")
-                    .padding(vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = dayKey.toChineseDate(),
-                        color = InkColor,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = "${recordings.size} 段录音",
-                        color = MutedColor,
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                }
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "回顾",
+            color = MutedColor,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.testTag("review_section_label"),
+        )
+        Spacer(Modifier.height(4.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = onOpenRecordings)
+                .testTag("selected_day_recordings")
+                .padding(vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "›",
+                    text = dayKey.toChineseDate(),
+                    modifier = Modifier.testTag("selected_day_date"),
+                    color = InkColor,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = "${recordings.size} 段录音",
                     color = MutedColor,
-                    fontSize = 28.sp,
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
-            Spacer(Modifier.height(10.dp))
-            HorizontalDivider(color = HairlineColor)
-            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "›",
+                color = MutedColor,
+                fontSize = 28.sp,
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        HorizontalDivider(color = HairlineColor)
+        Spacer(Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center,
-            ) {
-                when {
-                    context?.content != null -> DailyContextPreview(
-                        context = context,
-                        onOpen = onOpenContext,
-                        onRefresh = onRequestDailyContext,
-                    )
-                    context?.status == DailyContextStatus.QUEUED ||
-                        context?.status == DailyContextStatus.PROCESSING -> GeneratingContent(context)
-                    transcriptCount == 0 -> EmptyDayContent()
-                    else -> GenerateContent(
-                        failed = context?.status == DailyContextStatus.FAILED,
-                        onGenerate = onRequestDailyContext,
-                    )
-                }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            when {
+                context?.content != null -> DailyContextPreview(
+                    context = context,
+                    onOpen = onOpenContext,
+                    onRefresh = onRequestDailyContext,
+                )
+                context?.status == DailyContextStatus.QUEUED ||
+                    context?.status == DailyContextStatus.PROCESSING -> GeneratingContent(context)
+                transcriptCount == 0 -> EmptyDayContent()
+                else -> GenerateContent(
+                    failed = context?.status == DailyContextStatus.FAILED,
+                    onGenerate = onRequestDailyContext,
+                )
             }
         }
     }

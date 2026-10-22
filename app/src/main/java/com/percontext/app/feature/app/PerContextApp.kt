@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -43,6 +44,7 @@ fun PerContextApp(
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.RECORD) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    val pageStateHolder = rememberSaveableStateHolder()
 
     fun closeSettings() {
         performSettingsClose(
@@ -71,15 +73,20 @@ fun PerContextApp(
                     appearanceViewModel = appearanceViewModel,
                     onBack = { closeSettings() },
                 )
-                selectedTab == AppTab.RECORD -> RecordRoute(
-                    viewModel = recordViewModel,
-                    onStartRecording = onStartRecording,
-                    onOpenSettings = { settingsOpen = true },
-                )
-                else -> ReviewRoute(
-                    viewModel = reviewViewModel,
-                    onOpenSettings = { settingsOpen = true },
-                )
+                else -> pageStateHolder.SaveableStateProvider(selectedTab.name) {
+                    if (selectedTab == AppTab.RECORD) {
+                        RecordRoute(
+                            viewModel = recordViewModel,
+                            onStartRecording = onStartRecording,
+                            onOpenSettings = { settingsOpen = true },
+                        )
+                    } else {
+                        ReviewRoute(
+                            viewModel = reviewViewModel,
+                            onOpenSettings = { settingsOpen = true },
+                        )
+                    }
+                }
             }
         }
     }
