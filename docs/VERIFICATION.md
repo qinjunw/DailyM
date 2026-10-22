@@ -6,17 +6,33 @@
 
 | 对象 | 版本与状态 | 证据边界 |
 |---|---|---|
-| 核对时的 `main` 源码 | `fdd2fae`，`0.1.3-community` / code 5；已合入 [PR #1](https://github.com/qinjunw/DailyM/pull/1) 与文档 [PR #2](https://github.com/qinjunw/DailyM/pull/2) | 包含 Release JNI 修复、喵记 / DailyM 显示名称和紧凑首页；0.1.3 未发布安装包 |
-| 布局实现源码 | `4772c7e`，[PR #3](https://github.com/qinjunw/DailyM/pull/3)，`0.1.3-community` / code 5 | 记录与回顾页对齐、小屏大字状态标记修复；已有模拟器布局检查及实机覆盖安装与启动记录，未发布对应 APK |
-| 最新已发布预发布版 | [v0.1.2-community](https://github.com/qinjunw/DailyM/releases/tag/v0.1.2-community)，2026-09-13，code 4 | 仍是 PerContext Community 名称和旧页头，不包含 0.1.3 的 JNI 保留修复 |
+| 发布源 | `e3a2da6`，`0.1.3-community` / code 5；已合入 [PR #1](https://github.com/qinjunw/DailyM/pull/1)、文档 [PR #2](https://github.com/qinjunw/DailyM/pull/2) 与布局 [PR #3](https://github.com/qinjunw/DailyM/pull/3) | 包含 Release JNI 修复、喵记 / DailyM 命名及记录与回顾页布局修复；发布标签固定于此提交 |
+| 布局实现源码 | `4772c7e`，已合入 [PR #3](https://github.com/qinjunw/DailyM/pull/3)，`0.1.3-community` / code 5 | App 源码及构建配置与发布源一致；本节以下的布局测试及候选安装记录保留原制品和日期边界 |
+| 最新已发布预发布版 | [v0.1.3-community](https://github.com/qinjunw/DailyM/releases/tag/v0.1.3-community)，2026-10-22，code 5 | 最终 APK 为 199,867,481 字节；制品与历史测试范围见下节 |
 
-已发布的 0.1.2 不能因源码版本升级而视为已修复。需要 JNI 修复时应从当前源码构建，并对实际 Release 安装包验证；下载 0.1.2 不会获得此修复。仓库更名不改变既有 Release 资产文件名。
+0.1.3 发布包包含 JNI 保留修复；0.1.2 的既有 APK 保持原状，下载旧版不会获得此修复。仓库更名不改变既有 Release 资产文件名。
 
 10 月 8 日的修复包有真机既有录音转写和 DeepSeek 回顾通过记录；10 月 18 日的品牌与页头构建完成独立模拟器安装及制品检查；10 月 22 日的布局包完成实机覆盖安装与基础启动。后两次没有重跑真机业务主链。首次断网模型安装、新录音完整闭环、不同 OEM 和其他自定义服务的真实调用仍需针对交付版本补充证据。
 
+## 0.1.3 最终发布制品（2026-10-22）
+
+发布标签为 [v0.1.3-community](https://github.com/qinjunw/DailyM/releases/tag/v0.1.3-community)，源码固定为 `e3a2da6b2412ace9555323d971905f75e2035d8b`，tree 为 `d6c223dd8330287f977c19defeb16e132c73bd27`。附件为 [DailyM-0.1.3-arm64.apk](https://github.com/qinjunw/DailyM/releases/download/v0.1.3-community/DailyM-0.1.3-arm64.apk) 与 [SHA256SUMS.txt](https://github.com/qinjunw/DailyM/releases/download/v0.1.3-community/SHA256SUMS.txt)。
+
+- 最终 APK 为 199,867,481 字节，SHA-256 为 `0edbb0d28f6de2ffc0be971f2b1ebdc2497b633e8210fe4efc1aee94552ec4ec`；校验文件为 89 字节，其单条记录与实际 APK 文件名及整包 SHA-256 一致。APK 内嵌完整 VCS 与发布源一致。公开后已匿名下载两个附件，字节数、SHA-256 与校验文件正文再次核对一致。
+- 包名为 `com.percontext.community`，版本 `0.1.3-community` / code 5，最低 API 23、目标 API 37，仅含 `arm64-v8a` 原生库，非 debuggable。
+- 独立审计及测试对最终 APK 的 v1、v2 签名核验通过，证书 SHA-256 为 `14588180212c1b217ffd5c0c4ae8c28677063d4139c4b38189927d60c509b49c`，与已有社区版一致；工具保留 84 条 META-INF/JAR 条目保护警告。JNI 静态核验确认 122 个类、380 个字段及 117 个 native 方法声明保留，不能据此认定 JNI 或推理已运行。
+- 最终 APK 的模型为 239,233,841 字节，SHA-256 为 `c71f0ce00bec95b07744e116345e33d8cbbe08cef896382cf907bf4b51a2cd51`；词表为 315,894 字节，SHA-256 为 `f449eb28dc567533d7fa59be34e2abca8784f771850c78a47fb731a31429a1dc`。模型、词表及五份许可／归属文件的长度和哈希与固定打包记录一致。
+- 本轮 Release 构建成功，Gradle 显示耗时 16 秒；56 项任务中 4 项执行、52 项为 `UP-TO-DATE`。VCS 元数据更新并重新打包，R8 与 Lint 分析／报告复用同源产物；Lint 报告为 0 错误、22 警告。
+
+独立审计比较最终 APK 与 `4772c7e` 候选的完整 ZIP 集合，均为 131 项；只有 VCS 与三项签名元数据变化，其余 127 项解压字节相同。发布源与该实现的 App 及构建相关 tracked 范围一致。下述 173 项 JVM、30 项界面与资源测试及独立复跑其中 5 项布局测试属于既有同源证据，本轮打包未重跑。
+
+最终原始 Release 在 Android 16／API 36 的隔离模拟器完成安装、冷启动及 7 个空数据导航检查点。环境使用 x86_64 镜像、ARM64 翻译桥 `libndk_translation.so`，显示为 1080 × 2400 px、420 dpi、字体 1.0；飞行模式启用，Wi-Fi 及移动数据关闭。安装后拉回 APK 的 SHA-256 与最终附件一致，冷启动返回 `Status: ok`。检查路径为记录→回顾→设置→返回回顾→记录→设置→系统返回记录，原生 UI XML 与预期文字断言通过；这些是基本交付检查点，未运行 JUnit 或仪器测试。
+
+本轮未操作实体设备，也未验收真实麦克风、首次模型安装、离线推理／JNI 运行调用、真实云端回顾、既有用户数据覆盖升级或其他 API／OEM。翻译桥模拟器不能替代原生 ARM64 真机；前序候选的实机安装结果仍只适用于该候选。
+
 ## 记录页与回顾页布局（2026-10-22）
 
-本节对应基于 `fdd2fae` 的布局实现 `4772c7e`，包含统一布局及日期状态标记修复。关联缺陷为 [Issue #4](https://github.com/qinjunw/DailyM/issues/4)，变更与合入状态见 [PR #3](https://github.com/qinjunw/DailyM/pull/3)。包名、签名配置、`0.1.3-community` 版本及版本代码 5 保持不变，尚未发布对应 APK。
+本节对应基于 `fdd2fae` 的布局实现 `4772c7e`，包含统一布局及日期状态标记修复。关联缺陷为 [Issue #4](https://github.com/qinjunw/DailyM/issues/4)，变更与合入状态见 [PR #3](https://github.com/qinjunw/DailyM/pull/3)。包名、签名配置、`0.1.3-community` 版本及版本代码 5 保持不变。本节记录发布前的布局验证；最终发布制品见上节。
 
 两页使用同一页头、主面板外框和皮蛋平台。记录页移除偏移背板，回顾页将“回顾”标签及选中日期放在皮蛋下方。小屏和大字体下，主面板内部可滚动，六周日历及录音控件保留自然内容高度；下方录音列表与回顾详情独立滚动，切页保留各页位置和选中日期。
 

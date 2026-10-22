@@ -12,7 +12,7 @@
 | --- | --- |
 | <img src="docs/screenshots/record-home-zh-CN.png" width="260" alt="喵记记录首页：录音主面板、皮蛋和合成录音列表"> | <img src="docs/screenshots/review-calendar-zh-CN.png" width="260" alt="喵记回顾页：与首页对齐的设置按钮、月历主面板和皮蛋，下面是所选日期与合成回顾"> |
 
-预览来自 2026-10-22 的 Android 16 模拟器独立测试安装，对应 `4772c7e` 的布局实现（[PR #3](https://github.com/qinjunw/DailyM/pull/3)）。两图均为 392 × 800 dp 的测试视口截图，使用合成录音与回顾，不含私人记录或 API Key；不代表已发布的 `0.1.2` APK。设置页截图及各图来源见 [截图说明](docs/screenshots/README.md)。
+预览来自 2026-10-22 的 Android 16 模拟器独立测试安装，对应 `4772c7e` 的布局实现（[PR #3](https://github.com/qinjunw/DailyM/pull/3)）。两图均为 392 × 800 dp 的测试视口截图，非发布 APK 的整机截图；使用合成录音与回顾，不含私人记录或 API Key。设置页截图及各图来源见 [截图说明](docs/screenshots/README.md)。
 
 ## 当前功能
 
@@ -30,10 +30,10 @@
 
 | 版本 | 获取方式 | 差异与状态 |
 | --- | --- | --- |
-| 本目录源码 `0.1.3-community` / code 5 | [从源码构建](#从源码构建) | 包含“喵记 / DailyM”命名、记录与回顾页布局对齐及 Release 离线转写修复；尚未发布对应 APK |
-| 已发布 `0.1.2-community` / code 4 | [Release](https://github.com/qinjunw/DailyM/releases/tag/v0.1.2-community) · [ARM64 APK](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/PerContext-Community-0.1.2-arm64.apk) · [SHA256SUMS.txt](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/SHA256SUMS.txt) | 预发布，仍为旧品牌和旧首页；不含主干的 JNI 修复 |
+| 已发布 `0.1.3-community` / code 5 | [Release](https://github.com/qinjunw/DailyM/releases/tag/v0.1.3-community) · [ARM64 APK](https://github.com/qinjunw/DailyM/releases/download/v0.1.3-community/DailyM-0.1.3-arm64.apk) · [SHA256SUMS.txt](https://github.com/qinjunw/DailyM/releases/download/v0.1.3-community/SHA256SUMS.txt) | 预发布；包含“喵记 / DailyM”命名、记录与回顾页布局对齐及 Release 离线转写修复 |
+| 旧版 `0.1.2-community` / code 4 | [Release](https://github.com/qinjunw/DailyM/releases/tag/v0.1.2-community) · [ARM64 APK](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/PerContext-Community-0.1.2-arm64.apk) · [SHA256SUMS.txt](https://github.com/qinjunw/DailyM/releases/download/v0.1.2-community/SHA256SUMS.txt) | 预发布，仍为旧品牌和旧首页；不含主干的 JNI 修复 |
 
-**已知问题：** 已发布 `0.1.2` 的 Release 混淆可能使 SenseVoice 在初始化时出现 `NoSuchFieldError`，导致离线转写失败。主干 `0.1.3` 已加入原生接口保留规则；需要此修复时请从源码构建。两者均内置离线模型，详细故障与验证范围见 [验证记录](docs/VERIFICATION.md)。
+**已知问题：** 已发布 `0.1.2` 的 Release 混淆可能使 SenseVoice 在初始化时出现 `NoSuchFieldError`，导致离线转写失败。已发布 `0.1.3` 包含原生接口保留规则；需要此修复时可下载上表的 `0.1.3` APK，或从源码构建。两者均内置离线模型，详细故障与验证范围见 [验证记录](docs/VERIFICATION.md)。
 
 已安装本仓库社区版的用户，使用同包名、同发布证书且版本代码不降低的 Release 包时，可覆盖安装以保留应用数据。不能用 `0.1.2` / code 4 降级覆盖 `0.1.3` / code 5。升级前无需卸载；卸载会清除时间线、转写、回顾和设置。
 
